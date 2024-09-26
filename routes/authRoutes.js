@@ -59,17 +59,17 @@ router.post(
   createUser
 );
 //Login de usuario
-const fieldsLogin= ['email','password'];
+const fieldsLogin= ['email','password']; //  Define un array con los campos que se esperan
 const nameFieldsLogin=['El correo','La contraseña'];
 router.post(
     "/",
     [
-      validateFields.isEmpty(fieldsLogin,nameFieldsLogin),
+      validateFields.isEmpty(fieldsLogin,nameFieldsLogin), // Es un middleware que verifica si los campos 'email' y 'password' están vacíos.
       validateFields.isEmail(),
       check("password", "La contraseña debe tener más de 8 caracteres.").isLength({ min: 8 }),
       catchErrors,
     ],
-    loginUser
+    loginUser  // Es el controlador que se ejecuta si todos los middlewares anteriores pasan sin generar errores
   );
   
 router.put("/edit/:id",upload.single('file'),[
