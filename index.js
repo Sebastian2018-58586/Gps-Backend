@@ -1,52 +1,54 @@
+require('dotenv').config();
+
 const express = require("express");
 const cors = require("cors");
-//const path = require("path");
 const { createServer } = require("http");
 const socketConfig = require("./socket/config");
 const { sequelize } = require("./models");
-require("dotenv").config();
+const morgan = require("morgan");
 
-//crear el servidor
+// Crear la aplicación de Express
 const app = express();
 const server = createServer(app);
 socketConfig.configSocket(server);
-//conexión a la base de datos
+
+// Conexión a la base de datos
 async function main() {
   try {
     await sequelize.authenticate();
-    console.log("Conectado en la BD");
+    console.log("Conectado a la BD");
   } catch (error) {
-    console.error("No se puedo establecer la conexion en la base de datos");
+    console.error("No se pudo establecer la conexión a la base de datos:", error);
   }
 }
 
 main();
 
-//Directorio público
-app.use(express.static("public"));
-
-//Cors
+// Middleware
 app.use(cors());
-
-//Lectura y parseo del body
 app.use(express.json());
+app.use(express.static("public")); 
+app.use(morgan("dev"));
 
+app.get("/", (_req, res) => {
+  res.json({ message: "Hola" });
+});
 
-
-//Rutas
+// Rutas
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/producto", require("./routes/productRoutes"));
-app.use("/api/estadistica",require("./routes/statisticRoutes"));
-app.use("/api/proveedor",require("./routes/supplierRoutes"));
+app.use("/api/estadistica", require("./routes/statisticRoutes"));
+app.use("/api/proveedor", require("./routes/supplierRoutes"));
 app.use("/api/cliente", require("./routes/customerRoutes"));
-app.use("/api/empleado",require("./routes/employeeRoutes"));
+app.use("/api/empleado", require("./routes/employeeRoutes"));
 app.use("/api/gasto", require("./routes/expenseRoutes"));
 app.use("/api/venta", require("./routes/saleRoutes"));
-app.use("/api/pedido",require('./routes/orderRoutes'));
-app.use("/api/manufactura",require("./routes/manufactureRoutes"));
-app.use("/api/categoria",require("./routes/categoryRoutes"));
+app.use("/api/pedido", require('./routes/orderRoutes'));
+app.use("/api/manufactura", require("./routes/manufactureRoutes"));
+app.use("/api/categoria", require("./routes/categoryRoutes"));
 
-//conexión al puerto 
-server.listen(process.env.PORT,() => {
-  console.log(`El puerto ${process.env.PORT} esta conectado  `); 
+// Iniciar el servidor
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Servidor ejecutándose en el puerto ${PORT}`);
 });
