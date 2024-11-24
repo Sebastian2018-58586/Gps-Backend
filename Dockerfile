@@ -1,5 +1,5 @@
 # Usa una imagen oficial de Node.js como base
-FROM node:18
+FROM node:18-slim
 
 # Establecer la variable de entorno para la producción
 ENV NODE_ENV=production
