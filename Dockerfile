@@ -11,11 +11,21 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 
+# Instalar sequelize-cli globalmente
+RUN npm install -g sequelize-cli
+
+# Instalar netcat-openbsd (nc) para usarlo en el script wait-for-it.sh
+RUN apt-get update && apt-get install -y netcat-openbsd
+
 # Copiar el resto del código fuente al contenedor
 COPY . .
+
+# Copiar el script wait-for-it.sh
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 # Exponer el puerto en el que la aplicación se ejecuta
 EXPOSE 3000
 
-# Comando para iniciar la aplicación
-CMD ["npm", "start"]
+# Comando para iniciar la aplicación con espera
+CMD ["bash", "/usr/local/bin/wait-for-it.sh", "db", "--", "npm", "start"]
