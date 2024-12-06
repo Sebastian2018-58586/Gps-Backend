@@ -6,6 +6,7 @@ const { createServer } = require("http");
 const socketConfig = require("./socket/config");
 const { sequelize } = require("./models");
 const morgan = require("morgan");
+const { User } = require("./models");
 
 // Crear la aplicación de Express
 const app = express();
@@ -32,6 +33,16 @@ app.use(morgan("dev"));
 
 app.get("/", (_req, res) => {
   res.json({ message: "Hola" });
+});
+
+app.get("/user-count", async (_req, res) => {
+  try {
+    const userCount = await User.count();
+    res.json({ count: userCount });
+  } catch (error) {
+    console.error("Error al obtener la cantidad de usuarios:", error);
+    res.status(500).json({ error: "Error al obtener la cantidad de usuarios" });
+  }
 });
 
 // Rutas
