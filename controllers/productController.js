@@ -132,7 +132,16 @@ const updateProduct = async (req = request, res = response) => {
       "Product",
       "producto",
       "id",
-      ["id", "name", "description", "price", "amount", "image", "images", "idCategory"]
+      [
+        "id",
+        "name",
+        "description",
+        "price",
+        "amount",
+        "image",
+        "images",
+        "idCategory",
+      ]
     );
 
     if (!product) throw new Error("Producto no encontrado");
@@ -152,16 +161,20 @@ const updateProduct = async (req = request, res = response) => {
       }
 
       if (files.multipleFiles) {
-        const imagesPaths = product.images.split(",").map((img) =>
-          path.join(rutaImages, product.name.replace(/\s+/g, ""), img)
-        );
+        const imagesPaths = product.images
+          .split(",")
+          .map((img) =>
+            path.join(rutaImages, product.name.replace(/\s+/g, ""), img)
+          );
         imagesPaths.forEach(ModelController.deleteFile);
         body.images = getConcatenatedFileNames(files.multipleFiles);
         attributesToUpdate.push("images");
       }
     }
 
-    attributesToUpdate.forEach((attr) => (product[attr] = body[attr] || product[attr]));
+    attributesToUpdate.forEach(
+      (attr) => (product[attr] = body[attr] || product[attr])
+    );
     await product.save();
 
     return res.status(200).json({

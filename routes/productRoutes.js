@@ -15,31 +15,30 @@ const {
 } = require("../controllers/productController");
 const router = Router();
 function eliminarDiacriticos(texto) {
-  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g,"");
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 let bucle = 0;
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    let nameRoute = eliminarDiacriticos(req.body?.name.replace(/\s+/g,""));
+    let nameRoute = eliminarDiacriticos(req.body?.name.replace(/\s+/g, ""));
     let nameUseRoute = nameRoute.replace(/\//g, "-");
     let dir = `public/data/uploads/${nameUseRoute}`;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
-    } 
+    }
     cb(null, dir);
   },
   filename: function (req, file, cb) {
     let filename = "";
 
     if (file.fieldname === "singleFile") {
-      let nameRoute = eliminarDiacriticos(req.body?.name.replace(/\s+/g,""));
+      let nameRoute = eliminarDiacriticos(req.body?.name.replace(/\s+/g, ""));
       let nameUseRoute = nameRoute.replace(/\//g, "-");
       filename =
-        `${nameUseRoute}-image-${date}` +
-        path.extname(file.originalname);
+        `${nameUseRoute}-image-${date}` + path.extname(file.originalname);
     } else {
       bucle += 1;
-      let nameRoute = eliminarDiacriticos(req.body?.name.replace(/\s+/g,""));
+      let nameRoute = eliminarDiacriticos(req.body?.name.replace(/\s+/g, ""));
       let nameUseRoute = nameRoute.replace(/\//g, "-");
       filename =
         `${nameUseRoute}-images-${date}${bucle}` +
@@ -78,7 +77,7 @@ router.post(
   createProduct
 );
 router.get("/:id", findProduct);
-router.get("/name/:name", findProductByName); 
+router.get("/name/:name", findProductByName);
 router.post("/products", findProducts);
 router.put(
   "/edit/:id",

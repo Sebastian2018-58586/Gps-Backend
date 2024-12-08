@@ -21,7 +21,7 @@ const fieldsNameValidate = [
   "los detalles de la compra",
 ];
 router.post(
-  "/new", 
+  "/new",
   [
     validateFields.isEmpty(fieldsValidate, fieldsNameValidate),
     validateFields.validNumber(
@@ -32,7 +32,7 @@ router.post(
   ],
   createSale
 );
-router.get("/sales/:idCustomer",findSalesByCustomer);
+router.get("/sales/:idCustomer", findSalesByCustomer);
 router.get("/:id", findSale);
 router.post("/sales", findSales);
 router.put("/edit/:id", updateSale);
