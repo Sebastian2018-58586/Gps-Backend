@@ -30,8 +30,8 @@ class ModelController {
 
   static async findAll(req, res, db, model, listaAtributosMostrar) {
     try {
-      let objSearch={};
-      if(req.body.findQuery){
+      let objSearch = {};
+      if (req.body.findQuery) {
         objSearch = req.body.findQuery;
       }
       if (req.body.name != "") {
@@ -49,13 +49,13 @@ class ModelController {
       } else {
         return res.status(400).json({
           ok: false,
-          msg: "No se encontraron resultados",
+          msg: "No se encontraron resultados :(",
         });
       }
     } catch (error) {
       return res.status(400).json({
         ok: false,
-        msg: "Debes comunicarte con el administrador",
+        msg: "Debes comunicarte con el administrador C:",
       });
     }
   }
@@ -149,19 +149,19 @@ class ModelController {
     });
   }
 
-  static deleteFile(url){
-    const filePath =  url;
-    
+  static deleteFile(url) {
+    const filePath = url;
+
     fs.unlink(filePath, (err) => {
       if (err) {
-        console.error('Error al eliminar el archivo:', err);
+        console.error("Error al eliminar el archivo:", err);
       } else {
-        console.log('Archivo eliminado exitosamente'); 
+        console.log("Archivo eliminado exitosamente");
       }
     });
   }
 
-  static async getDetail_expenses(id,typeUse,db){
+  static async getDetail_expenses(id, typeUse, db) {
     try {
       const details_expense_avalaible = await db.sequelize.query(
         `SELECT products.id as idProduct,detail_expenses.id AS idDetailExpense, products.name,expenses.id AS idExpense,DATE_FORMAT(expenses.createdAt, "%Y-%m-%d %r")  AS date, expenses.name As nameExpense,
@@ -173,7 +173,7 @@ class ModelController {
               expenses.id = detail_manufactures.idExpense
               WHERE detail_expenses.idExpense IN (${id})  AND  detail_expenses.use IN (${typeUse})
               GROUP BY  detail_expenses.id `,
-              
+
         {
           type: QueryTypes.SELECT,
         }
@@ -182,11 +182,9 @@ class ModelController {
         return details_expense_avalaible;
       }
     } catch (error) {
-      throw new Error('Debes comunicarte con el administrador');
+      throw new Error("Debes comunicarte con el administrador");
     }
   }
 }
-
-
 
 module.exports = ModelController;
