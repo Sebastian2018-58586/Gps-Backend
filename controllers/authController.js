@@ -6,7 +6,14 @@ const rutaImage = "public/data/uploads/profiles";
 
 const createUser = async (req = request, res = response) => {
   try {
-    const newUser = await ModelController.create(req, res, db, "User", "usuario", "email");
+    const newUser = await ModelController.create(
+      req,
+      res,
+      db,
+      "User",
+      "usuario",
+      "email"
+    );
     if (newUser) {
       const token = await generateJWT(newUser.id, newUser.name);
       return res.status(200).json({
@@ -32,16 +39,22 @@ const updateUser = async (req = request, res = response) => {
       attributesToUpdate.push("image");
     }
 
-    const user = await ModelController.findOne(req, res, db, "User", req.body.rol, "id", [
-      "id", "name", "surname", "phoneNumber", "adress", "image", "password",
-    ]);
+    const user = await ModelController.findOne(
+      req,
+      res,
+      db,
+      "User",
+      req.body.rol,
+      "id",
+      ["id", "name", "surname", "phoneNumber", "adress", "image", "password"]
+    );
 
     if (user) {
       if (user.image) {
         ModelController.deleteFile(`${rutaImage}/${user.image}`);
       }
 
-      attributesToUpdate.forEach(attr => {
+      attributesToUpdate.forEach((attr) => {
         if (req.body[attr] !== undefined) user[attr] = req.body[attr];
       });
 
