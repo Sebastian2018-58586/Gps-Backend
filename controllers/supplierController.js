@@ -19,9 +19,9 @@ const createSupplier = async (req = request, res = response) => {
       .then(async (newSupplier) => {
         if (newSupplier) {
           for (let index = 0; index < supplierproducts.length; index++) {
-            supplierproducts[index]['idSupplier']= newSupplier.id;
+            supplierproducts[index]["idSupplier"] = newSupplier.id;
           }
-          await db.Product.bulkCreate(supplierproducts) 
+          await db.Product.bulkCreate(supplierproducts);
           return res.status(200).json({
             ok: true,
             msg: `El proveedor con nombre ${newSupplier.name} ha sido registrado.`,
@@ -77,8 +77,6 @@ const findSuppliers = async (req = request, res = response) => {
   await ModelController.findAll(req, res, db, "Supplier", listAttributes);
 };
 
-
-
 const updateSupplier = async (req = request, res = response) => {
   try {
     const { products } = req.body;
@@ -94,18 +92,20 @@ const updateSupplier = async (req = request, res = response) => {
       attributes
     )
       .then(async (supplier) => {
-        if(supplier){
+        if (supplier) {
           for (const product of Supplierproducts) {
-            const getProduct = db.Product.findOne({where:{id:product.id}})
-            if(getProduct){
-              getProduct.name= product.name;
+            const getProduct = db.Product.findOne({
+              where: { id: product.id },
+            });
+            if (getProduct) {
+              getProduct.name = product.name;
               getProduct.amount = product.amount;
-              getProduct.price= product.price;
-            }else{
-              await supplier.createProduct(product)
+              getProduct.price = product.price;
+            } else {
+              await supplier.createProduct(product);
             }
           }
-          console.log('epa');
+          console.log("epa");
           return res.status(200).json({
             ok: true,
             msg: `El proveedor con nombre ${supplier.name} ha sido editado.`,
