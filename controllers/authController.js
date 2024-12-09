@@ -5,91 +5,56 @@ const ModelController = require("./modelController");
 const rutaImage = "public/data/uploads/profiles";
 
 const createUser = async (req = request, res = response) => {
-  console.log(req.body);
-  await ModelController.create(req, res, db, "User", "usuario", "email")
-    .then(async (newUser) => {
-      console.log(newUser);
-      if (newUser) {
-        //Generar  el JWT
-        const token = await generateJWT(newUser.id, newUser.name);
-        //Generar Respuesta
-        return res.status(200).json({
-          ok: true,
-          uid: newUser.id,
-          name: newUser.name,
-          surname: newUser.surname,
-          adress: newUser.adress,
-          phoneNumber: newUser.phoneNumber,
-          email: newUser.email,
-          rol: 'cliente',
-          token,
-        }); 
-      }
-    })
-    .catch((error) => {
-      return res.status(400).json({
-        ok: false,
-        msg: error,
-      });
-    });
-};
-
-const UpdateUser = async (req = request, res = response) => {
   try {
-    const attributesToUpdate = [
-      "phoneNumber",
-      "adress",
-      "password",
-    ];
-    const attributesToSearch = [
-      "id",
-      "name",
-      "surname",
-      "phoneNumber",
-      "adress",
-      "image",
-      "password",
-    ];
-    console.log('puto');
-    console.log(req.body);
-    if (req.file) { 
-      const image = req.file.filename;
-      req.body = { ...req.body, image };
-      attributesToUpdate.push("image");
+    const newUser = await ModelController.create(req, res, db, "User", "usuario", "email");
+    if (newUser) {
+      const token = await generateJWT(newUser.id, newUser.name);
+      return res.status(200).json({
+        ok: true,
+        ...newUser.get({ plain: true }),
+        rol: "cliente",
+        token,
+      });
     }
-    await ModelController.findOne(
-      req,
-      res,
-      db,
-      "User",
-      req.body.rol,
-      "id",
-      attributesToSearch 
-    ).then(async (user) => {
-      if(user){
-        console.log(user);
-        if (user.image !== null) {
-          const urlFileDelete = `${rutaImage}/${user.image}`;
-          console.log(urlFileDelete);
-          ModelController.deleteFile(urlFileDelete);
-        }
-        console.log('me cago');
-        attributesToUpdate.forEach((element) => {
-          user[element] = req.body[element];
-        });
-        console.log('me cago')
-        await user.save();
-        console.log('Guardado')
-        return res.status(200).json({
-          ok: true,
-          msg: `El ${req.body.rol}  ha sido editado.`,
-        });
-      }
-    });
-  } catch (error) { 
+  } catch (error) {
     return res.status(400).json({
       ok: false,
-      msg: `Debes comunicarte con el administrador.`,
+      msg: error.message || "Error al crear el usuario.",
+    });
+  }
+};
+
+const updateUser = async (req = request, res = response) => {
+  try {
+    const attributesToUpdate = ["phoneNumber", "adress", "password"];
+    if (req.file) {
+      req.body.image = req.file.filename;
+      attributesToUpdate.push("image");
+    }
+
+    const user = await ModelController.findOne(req, res, db, "User", req.body.rol, "id", [
+      "id", "name", "surname", "phoneNumber", "adress", "image", "password",
+    ]);
+
+    if (user) {
+      if (user.image) {
+        ModelController.deleteFile(`${rutaImage}/${user.image}`);
+      }
+
+      attributesToUpdate.forEach(attr => {
+        if (req.body[attr] !== undefined) user[attr] = req.body[attr];
+      });
+
+      await user.save();
+      return res.status(200).json({
+        ok: true,
+        msg: `El ${req.body.rol} ha sido editado.`,
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      ok: false,
+      msg: "Error al actualizar el usuario.",
     });
   }
 };
@@ -98,77 +63,57 @@ const loginUser = async (req, res = response) => {
   const { email, password } = req.body;
   try {
     const dbUser = await db.User.findOne({ where: { email } });
-
-    if (!dbUser) {
+    if (!dbUser || !dbUser.validPassword(password, dbUser.password)) {
       return res.status(400).json({
         ok: false,
-        msg: "Verifique si la contraseña y el correo son correctos",
+        msg: "Credenciales inválidas.",
       });
     }
 
-    //confirmar si el password existe hace match
-    const validatePassword = dbUser.validPassword(password, dbUser.password);
-    if (!validatePassword) {
-      return res.status(400).json({
-        ok: false,
-        msg: "Verifique si la contraseña y el correo son correctos",
-      });
-    }
-
-    //Generar el JWT
     const token = await generateJWT(dbUser.id, dbUser.name);
+    const role = await dbUser.getRole();
+    const roleName = role.id === 4 ? "cliente" : role.name;
 
-    const rolUser = await dbUser.getRole();
-    const getNameRole = rolUser.id == 4 ? 'cliente' : rolUser.name
-    //Respuesta del servicio
     return res.json({
       ok: true,
-      uid: dbUser.id,
-      name: dbUser.name,
-      surname: dbUser.surname,
-      adress: dbUser.adress,
-      phoneNumber: dbUser.phoneNumber,
-      image: dbUser.image,
-      email: dbUser.email,
-      rol: getNameRole ,
+      ...dbUser.get({ plain: true }),
+      rol: roleName,
       token,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       ok: false,
-      msg: "Hable con el administrador",
+      msg: "Error al iniciar sesión. Contacte al administrador.",
     });
   }
 };
 
 const revalidateToken = async (req, res = response) => {
-  const { uid } = req;
+  try {
+    const { uid } = req;
+    const dbUser = await db.User.findOne({ where: { id: uid } });
+    const token = await generateJWT(uid, dbUser.name);
+    const role = await dbUser.getRole();
+    const roleName = role.id === 4 ? "cliente" : role.name;
 
-  //leer la base de datos
-  const dbUser = await db.User.findOne({ where: { id: uid } });
-
-  //Generar el JWT
-  const token = await generateJWT(uid, dbUser.name);
-  const rolUser = await dbUser.getRole();
-  const getNameRole = rolUser.id == 4 ? 'cliente' : rolUser.name
-  res.json({
-    ok: true,
-    name: dbUser.name,
-    surname: dbUser.surname,
-    adress: dbUser.adress,
-    phoneNumber: dbUser.phoneNumber, 
-    image: dbUser.image,
-    email: dbUser.email,
-    rol: getNameRole,
-    uid,
-    token,
-  });
+    return res.json({
+      ok: true,
+      ...dbUser.get({ plain: true }),
+      rol: roleName,
+      uid,
+      token,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      msg: "Error al revalidar el token. Contacte al administrador.",
+    });
+  }
 };
 
 module.exports = {
   createUser,
+  updateUser,
   loginUser,
   revalidateToken,
-  UpdateUser,
 };

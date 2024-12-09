@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
@@ -18,7 +18,10 @@ async function main() {
     await sequelize.authenticate();
     console.log("Conectado a la BD");
   } catch (error) {
-    console.error("No se pudo establecer la conexión a la base de datos:", error);
+    console.error(
+      "No se pudo establecer la conexión a la base de datos:",
+      error
+    );
   }
 }
 
@@ -27,7 +30,7 @@ main();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public")); 
+app.use(express.static("public"));
 app.use(morgan("dev"));
 
 app.get("/", (_req, res) => {
@@ -43,7 +46,7 @@ app.use("/api/cliente", require("./routes/customerRoutes"));
 app.use("/api/empleado", require("./routes/employeeRoutes"));
 app.use("/api/gasto", require("./routes/expenseRoutes"));
 app.use("/api/venta", require("./routes/saleRoutes"));
-app.use("/api/pedido", require('./routes/orderRoutes'));
+app.use("/api/pedido", require("./routes/orderRoutes"));
 app.use("/api/manufactura", require("./routes/manufactureRoutes"));
 app.use("/api/categoria", require("./routes/categoryRoutes"));
 
