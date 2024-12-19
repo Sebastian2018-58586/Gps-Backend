@@ -10,4 +10,14 @@ until nc -z "$host" 3306; do
   sleep 2
 done
 
+# Ejecutar las migraciones
+echo "Ejecutando migraciones..."
+npx sequelize db:migrate
+
+# Ejecutar los seeders
+echo "Ejecutando seeders..."
+npx sequelize db:seed:all
+
+# Iniciar la aplicación
+echo "Iniciando la aplicación..."
 exec $cmd
