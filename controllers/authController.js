@@ -98,6 +98,7 @@ const loginUser = async (req, res = response) => {
   const { email, password } = req.body;
   try {
     const dbUser = await db.User.findOne({ where: { email } });
+    console.log("dbUser", dbUser);
 
     if (!dbUser) {
       return res.status(400).json({

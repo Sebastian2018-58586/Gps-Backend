@@ -21,7 +21,7 @@ module.exports = {
         allowNull: false,
         type: DataTypes.INTEGER,
         references: {
-          model: "products",
+          model: "Products",
           key: "id",
         }
       },
@@ -29,7 +29,7 @@ module.exports = {
         allowNull: false,
         type: DataTypes.INTEGER,
         references: {
-          model: "sales",
+          model: "Sales",
           key: "id",
         },
         onDelete:'CASCADE',
