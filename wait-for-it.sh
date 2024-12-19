@@ -11,12 +11,12 @@ until nc -z "$host" 3306; do
 done
 
 # Ejecutar las migraciones
-echo "Ejecutando migraciones..."
-npx sequelize db:migrate
+# echo "Ejecutando migraciones..."
+# npx sequelize db:migrate
 
 # Ejecutar los seeders
-echo "Ejecutando seeders..."
-npx sequelize db:seed:all
+# echo "Ejecutando seeders..."
+# npx sequelize db:seed:all
 
 # Iniciar la aplicación
 echo "Iniciando la aplicación..."
