@@ -1,24 +1,24 @@
 {
   "development": {
     "username": "root",
-    "password": null,
+    "password": "root",
     "database": "caferosita",
-    "host": "127.0.0.1",
+    "host": "db",
     "dialect": "mysql",
     "timezone": "-05:00"
   },
   "test": {
     "username": "root",
-    "password": null,
+    "password": "root",
     "database": "caferosita",
-    "host": "",
-    "dialect": "mysql" 
+    "host": "db",
+    "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": null,
+    "password": "root",
     "database": "caferosita",
-    "host": "127.0.0.1",
+    "host": "db",
     "dialect": "mysql"
   }
 }
